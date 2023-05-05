@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <p>Three VRM Test</p>
+    </head>
+    <body>
+        <p>Body</p>
+    </body>
+</html>
+
+
+<!-- About import maps, see the Three.js official docs: -->
+<!-- https://threejs.org/docs/#manual/en/introduction/Installation -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+<script type="module">
+    import * as THREE from '/node_modules/three';
+    import { GLTFLoader } from '/node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+    import { VRMLoaderPlugin } from '/node_modules/@pixiv/three-vrm';
+
+    const scene = new THREE.Scene();
+
+    const loader = new GLTFLoader();
+
+    // Install GLTFLoader plugin
+    loader.register((parser) => {
+    return new VRMLoaderPlugin(parser);
+    });
+
+    loader.load(
+    // URL of the VRM you want to load
+    '/models/AliciaSolid.vrm',
+
+    // called when the resource is loaded
+    (gltf) => {
+        // retrieve a VRM instance from gltf
+        const vrm = gltf.userData.vrm;
+
+        // add the loaded vrm to the scene
+        scene.add(vrm.scene);
+
+        // deal with vrm features
+        console.log(vrm);
+    },
+
+    // called while loading is progressing
+    (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
+
+    // called when loading has errors
+    (error) => console.error(error),
+    );
+</script>
