@@ -1,97 +1,153 @@
 
 <html>
     <head>
-        <p>aaa</p>
-    </head>
-    <body>
-
-        <div id="canvas" style="width:640px;height:480px;"></div>
-
         <!-- About import maps, see the Three.js official docs: -->
         <!-- https://threejs.org/docs/#manual/en/introduction/Installation -->
         <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
 
         <script type="importmap">
-        {
-            "imports": {
-            "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/",
-            "@pixiv/three-vrm": "/node_modules/@pixiv/three-vrm/lib/three-vrm.module.js"
+            {
+                "imports": {
+                "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/",
+                "@pixiv/three-vrm": "/node_modules/@pixiv/three-vrm/lib/three-vrm.module.js"
+                }
             }
-        }
         </script>
 
         <script type="module">
 
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+            import * as THREE from 'three';
+            import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+            import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 
-        window.addEventListener("DOMContentLoaded", () => {
-            var width = 500;
-            var height = 250;
+            var vrm
 
-            const canvas = document.getElementById('canvas')
+            window.addEventListener("DOMContentLoaded", () => {
+                var width = 500;
+                var height = 250;
 
-            var scene = new THREE.Scene();
+                const canvas = document.getElementById('canvas')
 
-            const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 1000)
-            camera.position.set(0, 1.3, -1)
-            camera.rotation.set(0, Math.PI, 0)
+                var scene = new THREE.Scene();
 
-            const renderer = new THREE.WebGLRenderer({antialias: true});
-            renderer.setPixelRatio(window.devicePixelRatio)
-            renderer.setSize(canvas.clientWidth, canvas.clientHeight)
-            renderer.setClearColor(0x7fbfff, 1.0)
-            canvas.appendChild(renderer.domElement)
+                const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 1000)
+                camera.position.set(0, 1, -3)
+                camera.rotation.set(0, Math.PI, 0)
 
-            const light = new THREE.DirectionalLight(0xffffff)
-            light.position.set(-1, 1, -1).normalize()
-            scene.add(light)
+                const renderer = new THREE.WebGLRenderer({antialias: true});
+                renderer.setPixelRatio(window.devicePixelRatio)
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight)
+                renderer.setClearColor(0x7fbfff, 1.0)
+                canvas.appendChild(renderer.domElement)
 
-            const loader = new GLTFLoader();
+                const light = new THREE.DirectionalLight(0xffffff)
+                light.position.set(-1, 1, -1).normalize()
+                scene.add(light)
 
-            // Install GLTFLoader plugin
-            loader.register((parser) => {
-                return new VRMLoaderPlugin(parser);
-            });
+                const loader = new GLTFLoader();
 
-            loader.load(
-                // URL of the VRM you want to load
-                '/models/AliciaSolid.vrm',
+                // Install GLTFLoader plugin
+                loader.register((parser) => {
+                    return new VRMLoaderPlugin(parser);
+                });
 
-                // called when the resource is loaded
-                (gltf) => {
-                // retrieve a VRM instance from gltf
-                const vrm = gltf.userData.vrm;
+                loader.load(
+                    // URL of the VRM you want to load
+                    '/models/AliciaSolid.vrm',
 
-                const head = vrm.humanoid.getBoneNode('head')
-                head.rotation.x = Math.PI /6
+                    // called when the resource is loaded
+                    (gltf) => {
+                        // retrieve a VRM instance from gltf
+                        vrm = gltf.userData.vrm;
 
-                vrm.expressionManager.setValue('blinkLeft', 0.8)
-                vrm.update(1) // <- expressionManager.setValueにはこれが必要
+                        scene.add(vrm.scene);
 
-                // add the loaded vrm to the scene
-                // vrm.scene.position.set(0, 0, 0);
-                scene.add(vrm.scene);
+                        // VRMUtils.rotateVRM0(vrm);
 
-                // deal with vrm features
-                console.log(vrm);
-                },
+                        // var human = vrm.humanoid.getBoneNode("hips");
 
-                // called while loading is progressing
-                (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
+                        // var vrmpose = {
+                        //     root : {
+                        //         rotation: [0.000, 0.000, 0.000, 1.000],
+                        //         position: [-0.037, -0.090, 0.596]
+                        //     },
+                        //     leftUpperLeg : {
+                        //         rotation: [  0.000,  0.000, -0.454,  0.891 ],
+                        //         position: [  0.000,  0.000,  0.000 ]
+                        //     },
+                        //     leftLowerLeg : {
+                        //         rotation: [ -0.454,  0.000,  0.000,  0.891 ],
+                        //             position: [  0.000,  0.000,  0.000 ]
+                        //     },
+                        // }
 
-                // called when loading has errors
-                (error) => console.error(error),
-            );
+                        // vrm.humanoid.setPose(vrmpose)
+
+                        // ボーンの位置や回転を変更します
+                        //human.position.y += 0;  // ボーンのY座標を1.0増やします
+                        // human.rotation.x += Math.PI / 6;  // ボーンを45度回転させます
+
+                        // const head = vrm.humanoid.getBoneNode('head')
+                        // head.rotation.x = Math.PI /10
+
+                        // vrm.expressionManager.setValue('blinkLeft', 0.5)
+                        // vrm.update(1) // <- expressionManager.setValueにはこれが必要
+
+                        // add the loaded vrm to the scene
+                        // vrm.scene.position.set(0, 0, 0);
+                        // scene.add(vrm.scene);
+
+                        // deal with vrm features
+                        console.log(vrm);
+                    },
+
+                    // called while loading is progressing
+                    (progress) => console.log('Loading model...', 100.0 * (progress.loaded / progress.total), '%'),
+
+                    // called when loading has errors
+                    (error) => console.error(error),
+                );
+                
+                const update = () => {
+                    requestAnimationFrame(update)
+                    renderer.render(scene, camera)
+                }
+                update()
+            })
             
-            const update = () => {
-                requestAnimationFrame(update)
-                renderer.render(scene, camera)
+            const updateVRMPoseButton = document.getElementById('updateVRMPose');
+
+            function updateVRMPose() {
+
+                var vrmpose = {
+                    root : {
+                        rotation: [0.000, 0.000, 0.000, 1.000],
+                        position: [-0.037, -0.090, 0.596]
+                    },
+                    leftUpperLeg : {
+                        rotation: [  0.000,  0.000, -0.454,  0.891 ],
+                        position: [  0.000,  0.000,  0.000 ]
+                    },
+                    leftLowerLeg : {
+                        rotation: [ -0.454,  0.000,  0.000,  0.891 ],
+                            position: [  0.000,  0.000,  0.000 ]
+                    },
+                }
+
+                vrm.humanoid.setPose(vrmpose)
+
             }
-            update()
-        })
+
+            updateVRMPoseButton.addEventListener('click', updateVRMPose);
+
         </script>
+
+    </head>
+    <body>
+
+        <div id="canvas" style="width:640px;height:480px;"></div>
+        <button id="updateVRMPose">update pose</button>
+
     </body>
 </html>
