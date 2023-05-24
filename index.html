@@ -20,6 +20,8 @@
             import * as THREE from 'three';
             import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
             import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+            import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 
             var vrm
 
@@ -39,6 +41,8 @@
                 renderer.setPixelRatio(window.devicePixelRatio)
                 renderer.setSize(canvas.clientWidth, canvas.clientHeight)
                 renderer.setClearColor(0x7fbfff, 1.0)
+
+                const controls = new OrbitControls( camera, renderer.domElement );
                 canvas.appendChild(renderer.domElement)
 
                 const light = new THREE.DirectionalLight(0xffffff)
@@ -63,42 +67,6 @@
 
                         scene.add(vrm.scene);
 
-                        // VRMUtils.rotateVRM0(vrm);
-
-                        // var human = vrm.humanoid.getBoneNode("hips");
-
-                        // var vrmpose = {
-                        //     root : {
-                        //         rotation: [0.000, 0.000, 0.000, 1.000],
-                        //         position: [-0.037, -0.090, 0.596]
-                        //     },
-                        //     leftUpperLeg : {
-                        //         rotation: [  0.000,  0.000, -0.454,  0.891 ],
-                        //         position: [  0.000,  0.000,  0.000 ]
-                        //     },
-                        //     leftLowerLeg : {
-                        //         rotation: [ -0.454,  0.000,  0.000,  0.891 ],
-                        //             position: [  0.000,  0.000,  0.000 ]
-                        //     },
-                        // }
-
-                        // vrm.humanoid.setPose(vrmpose)
-
-                        // ボーンの位置や回転を変更します
-                        //human.position.y += 0;  // ボーンのY座標を1.0増やします
-                        // human.rotation.x += Math.PI / 6;  // ボーンを45度回転させます
-
-                        // const head = vrm.humanoid.getBoneNode('head')
-                        // head.rotation.x = Math.PI /10
-
-                        // vrm.expressionManager.setValue('blinkLeft', 0.5)
-                        // vrm.update(1) // <- expressionManager.setValueにはこれが必要
-
-                        // add the loaded vrm to the scene
-                        // vrm.scene.position.set(0, 0, 0);
-                        // scene.add(vrm.scene);
-
-                        // deal with vrm features
                         console.log(vrm);
                     },
 
@@ -116,32 +84,8 @@
                 update()
             })
             
-            const updateVRMPoseButton = document.getElementById('updateVRMPose');
             const startWebSocketButton = document.getElementById('startWebSocket');
             const stopWebSocketButton = document.getElementById('stopWebSocket');
-
-            function updateVRMPose() {
-
-                var vrmpose = {
-                    root : {
-                        rotation: [0.000, 0.000, 0.000, 1.000],
-                        position: [-0.037, -0.090, 0.596]
-                    },
-                    leftUpperLeg : {
-                        rotation: [  0.000,  0.000, -0.454,  0.891 ],
-                        position: [  0.000,  0.000,  0.000 ]
-                    },
-                    leftLowerLeg : {
-                        rotation: [ -0.454,  0.000,  0.000,  0.891 ],
-                            position: [  0.000,  0.000,  0.000 ]
-                    },
-                }
-
-                vrm.humanoid.setPose(vrmpose)
-
-            }
-
-            updateVRMPoseButton.addEventListener('click', updateVRMPose);
 
             var ws;
             function startWebSocket() {
@@ -207,7 +151,6 @@
     <body>
 
         <div id="canvas" style="width:640px;height:480px;"></div>
-        <button id="updateVRMPose">update pose</button>
         <button id="startWebSocket">Start</button>
         <button id="stopWebSocket">Stop</button>
         <div id="messages"></div>
