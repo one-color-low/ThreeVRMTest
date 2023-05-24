@@ -22,8 +22,9 @@
             import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
             import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-
-            var vrm
+            var poseMustUpdate = false;
+            var vrm;
+            var vrmpose = {};
 
             window.addEventListener("DOMContentLoaded", () => {
                 var width = 500;
@@ -34,7 +35,7 @@
                 var scene = new THREE.Scene();
 
                 const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 1000)
-                camera.position.set(0, 1, -3)
+                camera.position.set(0, 5, -4)
                 camera.rotation.set(0, Math.PI, 0)
 
                 const renderer = new THREE.WebGLRenderer({antialias: true});
@@ -78,6 +79,11 @@
                 );
                 
                 const update = () => {
+                    if(poseMustUpdate){
+                        console.log(vrmpose);
+                        vrm.humanoid.setRawPose(vrmpose);
+                    } 
+                    poseMustUpdate = false;
                     requestAnimationFrame(update)
                     renderer.render(scene, camera)
                 }
@@ -89,7 +95,7 @@
 
             var ws;
             function startWebSocket() {
-                var vrmpose = {};
+
                 ws = new WebSocket('ws://localhost:8080');
 
                 ws.onopen = function(event) {
@@ -121,13 +127,13 @@
 
                     // 次のRootデータが来たら、現在のデータを出力してリセット
                     if (name == 'root' && Object.keys(vrmpose).length > 1) {
-                        console.log(vrmpose);
-                        vrm.humanoid.setPose(vrmpose)
-                        vrmpose = {};
-                        vrmpose[name] = {
-                            position: position,
-                            rotation: rotation
-                        };
+                        // vrm.humanoid.setRawPose(vrmpose)
+                        poseMustUpdate = true;
+                        // vrmpose = {};
+                        // vrmpose[name] = {
+                        //     position: position,
+                        //     rotation: rotation
+                        // };
                     }
 
                 };
@@ -150,7 +156,7 @@
     </head>
     <body>
 
-        <div id="canvas" style="width:640px;height:480px;"></div>
+        <div id="canvas" style="width:720px;height:680px;"></div>
         <button id="startWebSocket">Start</button>
         <button id="stopWebSocket">Stop</button>
         <div id="messages"></div>
